@@ -1,6 +1,6 @@
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 b                           b
-b                e          b
+b         zzz    e          b
 b e                   xxx   b
 b       xxx     xx          b
 b       bbb     bb          b
@@ -10,14 +10,14 @@ b       bbb      xxx        b
 b       bbb            e    b
 b       bbb     xxx         b
 b                           b
-b                           b
-b            z      xxxx    b
+b     zzz                   b
+b                   xxxx    b
 b       e           bb      b
 b          xxx              b
 b           bb       e      b
 b                           b
 b   xxxx                    b
-b    bb               xx    b
+b    bb           zzz xx    b
 b          e          b     b
 b             xx            b
 b                           b

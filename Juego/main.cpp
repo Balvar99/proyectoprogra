@@ -23,14 +23,21 @@ typedef struct{
 	
 	int posx;
 	int posy;
+	int vel;
+	int direccion; // 1 , 1-
+	int tipo;//1 estatico, 2 dinamico, 3 inteligente
 	
 }Enemigo;
 
-int enemigo_cont=0;
 
-
-void mecanicas(Jugador *player,Enemigo *enemigo);
+void mecanicas(Enemigo *npc,Jugador *player,char mapa_matriz[MAXFILAS][MAXCOL]);
 void pantalla(Jugador p);
+void mapa(char mapa_matriz[MAXFILAS][MAXCOL]);
+void dibuja(char mapa_matriz[MAXFILAS][MAXCOL]);
+void movimiento(char mapa_matriz[MAXFILAS][MAXCOL],Jugador *player);
+int leer_enemigos(Enemigo npc[20],char mapa_matriz[MAXFILAS][MAXCOL]);
+void movimiento_enemigos(Enemigo npc[20],char mapa_matriz[MAXFILAS][MAXCOL],int cont_enemigos);
+void colision_enemigos(Enemigo npc[20],char mapa_matriz[MAXFILAS][MAXCOL],int cont_enemigos);
 void destroys();
 void init();
 void deinit();
@@ -57,7 +64,10 @@ int main() {
 	player.vel = VEL;
 	player.pts = 0;
 	
-	int tiempo=0,tiempo_real=0;
+	
+	
+	int tiempo=0,tiempo_real=0,cont_enemigos=0;
+	char mapa_matriz[MAXFILAS][MAXCOL];	
 	
 	pj = create_bitmap(30,30);
 	fondo = create_bitmap(P_AL,P_AN);
@@ -66,6 +76,9 @@ int main() {
 	malo = create_bitmap(30,30);
 	item1 = create_bitmap(20,20);
 	
+	mapa(mapa_matriz);
+	cont_enemigos = leer_enemigos(enemigo,mapa_matriz);
+
 		
 
 	while (!key[KEY_ESC]) {
@@ -77,8 +90,11 @@ int main() {
 		malo = load_bitmap("media/enemigo.bmp",NULL);
 		item1 = load_bitmap("media/item1.bmp",NULL);
 		
-		
-		mecanicas(&player,&enemigo[20]);
+		mecanicas(&enemigo[20],&player,mapa_matriz);
+		dibuja(mapa_matriz);
+		movimiento(mapa_matriz,&player);
+		movimiento_enemigos(enemigo,mapa_matriz,cont_enemigos);
+		colision_enemigos(enemigo,mapa_matriz,cont_enemigos);
 		pantalla(player);
 		
 		tiempo++;
@@ -126,30 +142,37 @@ void deinit() {
 	/* add other deinitializations here */
 }
 
-
-void mecanicas(Jugador *player,Enemigo *enemigo){
+void mapa(char mapa_matriz[MAXFILAS][MAXCOL]){
 	
 	int i,j;
-	char mapa_matriz[MAXFILAS][MAXCOL];
-	clock_t beginALL = clock();
 	FILE* MAPA;
 	
 	MAPA = fopen("MAPA.txt","r");
+	
 	
 	if(MAPA == NULL){
 		printf("ERROR AL LEER MAPA, NO SE PUDO ABRIR ARCHIVO");
 	}
 	
-	
+	//lee
 	for(i=0;i<MAXFILAS;i++){
 		for(j=0;j<MAXCOL;j++){
 			fscanf(MAPA,"%c",&mapa_matriz[i][j]);
 		}
 	}
 	
+
+	fclose(MAPA);
+	
+}
+
+void dibuja(char mapa_matriz[MAXFILAS][MAXCOL]){
+//dibuja
+	int i,j;
 	
 	for(i=0;i<MAXFILAS;i++){
 		for(j=0;j<MAXCOL;j++){
+			
 			if(mapa_matriz[i][j] == 'x'){
 			
 				draw_sprite(fondo,bush,j*30,i*30);
@@ -157,24 +180,16 @@ void mecanicas(Jugador *player,Enemigo *enemigo){
 			if(mapa_matriz[i][j] == 'b'){
 				
 				draw_sprite(fondo,borde,j*30,i*30);
-				
-			}
-			if(mapa_matriz[i][j] == 'e'){
-				draw_sprite(fondo,malo,j*30,i*30);
 			}
 			if(mapa_matriz[i][j] == 'z'){
 				draw_sprite(fondo,item1,j*30,i*30);
 			}
 		}
-	}
+	}	
+}
 
-	fclose(MAPA);
-	////////////////////////////////////////////////////////////////
-
-
+void movimiento(char mapa_matriz[MAXFILAS][MAXCOL],Jugador *player){
 	
-	
-	////////////////////////////////////////////////////////////////
 	if(key[KEY_A]){
 		
 		if((player->posx)%30!=0){
@@ -221,9 +236,71 @@ void mecanicas(Jugador *player,Enemigo *enemigo){
                 player->posy -= player->vel;
     	
 		}
+	}	
+	
+}
+int leer_enemigos(Enemigo npc[20],char mapa_matriz[MAXFILAS][MAXCOL]){
+	
+	int i,j;
+	int cont=0;
+	
+	for(i=0;i<MAXFILAS;i++){
+		for(j=0;j<MAXCOL;j++){
+			if(mapa_matriz[i][j] == 'e'){
+				
+				npc[cont].posx = j*30;
+				npc[cont].posy = i*30;
+				npc[cont].vel = 5;
+				npc[cont].direccion = 1;
+				npc[cont].tipo = 1;
+				cont++;
+				
+			}
+		}
 	}
 	
-	/////////////////////////////////////////////////
+	return cont;
+}
+
+void movimiento_enemigos(Enemigo npc[20],char mapa_matriz[MAXFILAS][MAXCOL],int cont_enemigos){
+	
+	int i,j;
+	
+	for(i=0;i<cont_enemigos;i++){
+		
+		npc[i].posx += npc[i].direccion*npc[i].vel;
+		
+		draw_sprite(fondo,malo,npc[i].posx,npc[i].posy);
+	}
+	
+}
+
+void colision_enemigos(Enemigo npc[20],char mapa_matriz[MAXFILAS][MAXCOL],int cont_enemigos){
+	
+	int i;
+	
+	for(i=0;i<cont_enemigos;i++){
+		
+		if(mapa_matriz[(npc[i].posy/30)][((npc[i].posx)/30)+1]=='x' || mapa_matriz[(npc[i].posy+29)/30][(npc[i].posx/30)+1]=='x' || mapa_matriz[(npc[i].posy/30)][((npc[i].posx)/30)+1]=='b' || mapa_matriz[(npc[i].posy+29)/30][(npc[i].posx/30)+1]=='b'){
+		
+                npc[i].direccion = npc[i].direccion*-1;
+		}
+		if(mapa_matriz[(npc[i].posy/30)][((npc[i].posx)/30)]=='x' || mapa_matriz[(npc[i].posy+29)/30][(npc[i].posx/30)]=='x' || mapa_matriz[(npc[i].posy/30)][((npc[i].posx)/30)]=='b' || mapa_matriz[(npc[i].posy+29)/30][(npc[i].posx/30)]=='b'){
+		
+                npc[i].direccion = npc[i].direccion*-1;
+		}
+		
+}
+}
+	
+
+
+
+void mecanicas(Enemigo *npc,Jugador *player,char mapa_matriz[MAXFILAS][MAXCOL]){
+	
+	int i,j;
+	clock_t beginALL = clock();
+	
 	
 	if(mapa_matriz[(player->posy/30)][(player->posx/30)+1] == 'e'){
 		
@@ -234,6 +311,7 @@ void mecanicas(Jugador *player,Enemigo *enemigo){
 			player->pts = 0;
 		}		
 	}
+	
 	if(mapa_matriz[(player->posy/30)][(player->posx/30)+1] == 'z'){
 		player->pts += 100;
 		
