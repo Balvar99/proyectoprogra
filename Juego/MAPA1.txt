@@ -1,0 +1,24 @@
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bzzz       e                b
+b                           b
+b e xxx          e    xxx   b
+b       xxx     xx          b
+b       bbb   e bb          b
+b    e  bbb     bb          b
+b        e                  b
+b       zzz      xxx        b
+bxx    xxx             e    b
+b   t   bb      xxx         b
+b         e                 b
+b               e           b
+b           t       xxxx    b
+b       e           bb      b
+b          xxx              b
+b    t      bb       e      b
+b                           b
+b   xxxx         e          b
+b    bb           zzz xx    b
+b          e          b     b
+b           e xx            b
+b                           b
+bxxxxxxxxxxxxxxxxxxxxxxxxxxxb
